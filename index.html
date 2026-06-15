@@ -1097,7 +1097,28 @@ function resetAdj(){['aBr','aCo','aSa','aWa','aVi','aFd'].forEach(function(id){v
 function buildFrmPanel(p){var g=document.createElement('div');g.className='frame-grid';FRAMES.forEach(function(fr,i){var d=document.createElement('div');d.className='fo'+(i===0?' on':'');var cv=document.createElement('canvas');cv.width=80;cv.height=38;var ctx=cv.getContext('2d');ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,80,38);if(fr.d)fr.d(ctx,80,38);d.appendChild(cv);var lbl=document.createElement('div');lbl.className='fo-lbl';lbl.textContent=fr.n;d.appendChild(lbl);(function(f){d.onclick=function(){document.querySelectorAll('.fo').forEach(function(x){x.classList.remove('on');});d.classList.add('on');curFrame=f;for(var j=0;j<photos.length;j++)redraw(j);SFX.sparkle();setSt('กรอบ '+f.n);};})(fr);g.appendChild(d);});p.appendChild(g);}
 function buildThmPanel(p){p.innerHTML='<div class="glass-sec-title">Film Strip Theme</div><div class="theme-grid" id="thmGrid"></div><div class="glass-sec-title" style="margin-top:10px">BG ฟิล์ม</div><div class="sbg-grid" id="sbgGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px"></div><div class="glass-sec-title" style="margin-top:10px">Label</div><div style="display:flex;flex-direction:column;gap:5px"><input class="strip-in" id="hdrIn" value="✦ MEMORIES ✦" oninput="updLbl()"><input class="strip-in" id="ftrIn" value="📸 2025 · Si Racha" oninput="updLbl()"></div>';var tg=document.getElementById('thmGrid');FILM_THEMES.forEach(function(t,i){var d=document.createElement('div');d.className='thm'+(i===0?' on':'');var grad='linear-gradient(135deg,'+t.bg+','+t.ac+'44)';d.style.background=grad;d.innerHTML='<span class="thm-lbl">'+t.n+'</span>';(function(th){d.onclick=function(){document.querySelectorAll('.thm').forEach(function(x){x.classList.remove('on');});d.classList.add('on');applyTheme(th);SFX.pop();};})(t);tg.appendChild(d);});var sg=document.getElementById('sbgGrid');STRIP_BGS.forEach(function(b){var d=document.createElement('div');d.style.cssText='height:36px;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:all .2s;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;overflow:hidden;background:'+b.bg;d.innerHTML='<span style="font-size:7px;font-weight:900;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9)">'+b.n+'</span>';d.onclick=function(){var fp=document.getElementById('filmPreview');if(fp)fp.style.background=b.bg;SFX.pop();};sg.appendChild(d);});}
 function updLbl(){var h=document.getElementById('hdrIn'),f=document.getElementById('ftrIn');var hEl=document.getElementById('flH'),fEl=document.getElementById('flF');if(h&&hEl)hEl.textContent=h.value||'✦ MEMORIES ✦';if(f&&fEl)fEl.textContent=f.value||'📸 2025';}
-function buildGlitterPanel(p){p.innerHTML='<div class="glass-sec-title">Glitter & Sparkle</div><div style="display:flex;flex-direction:column;gap:8px;margin-top:8px"><button class="ab save" onclick="addGlitter('pink')">🌸 Pink Glitter</button><button class="ab save" onclick="addGlitter('gold')" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">✨ Gold Sparkle</button><button class="ab save" onclick="addGlitter('rainbow')" style="background:linear-gradient(135deg,#f472b6,#818cf8,#22d3ee)">🌈 Rainbow Stars</button><button class="ab save" onclick="addGlitter('snow')" style="background:linear-gradient(135deg,#bfdbfe,#e0f2fe)">❄️ Snow</button><button class="ab" onclick="clearGlitter()" style="color:#fda4af;margin-top:4px">🗑 ล้าง Glitter</button></div>';}
+function buildGlitterPanel(p){
+  p.innerHTML='';
+  var t=document.createElement('div');t.className='glass-sec-title';t.textContent='Glitter & Sparkle';p.appendChild(t);
+  var col=document.createElement('div');col.style.cssText='display:flex;flex-direction:column;gap:8px;margin-top:8px';
+  var btns=[
+    {txt:'🌸 Pink Glitter',type:'pink',style:''},
+    {txt:'✨ Gold Sparkle',type:'gold',style:'background:linear-gradient(135deg,#fbbf24,#f59e0b)'},
+    {txt:'🌈 Rainbow Stars',type:'rainbow',style:'background:linear-gradient(135deg,#f472b6,#818cf8,#22d3ee)'},
+    {txt:'❄️ Snow',type:'snow',style:'background:linear-gradient(135deg,#bfdbfe,#e0f2fe)'},
+  ];
+  btns.forEach(function(b){
+    var btn=document.createElement('button');
+    btn.className='ab save';btn.textContent=b.txt;
+    if(b.style)btn.style.cssText=b.style;
+    (function(tp){btn.onclick=function(){addGlitter(tp);};})(b.type);
+    col.appendChild(btn);
+  });
+  var clr=document.createElement('button');clr.className='ab';clr.textContent='🗑 ล้าง Glitter';
+  clr.style.cssText='color:#fda4af;margin-top:4px';clr.onclick=clearGlitter;
+  col.appendChild(clr);
+  p.appendChild(col);
+}
 function addGlitter(type){var sl=document.getElementById('fsl'+curEditSlot);if(!sl)return;var gcv=document.getElementById('fglc'+curEditSlot);if(!gcv)return;gcv.width=sl.offsetWidth;gcv.height=sl.offsetHeight;var ctx=gcv.getContext('2d',{willReadFrequently:true});var colors={pink:['#f9a8d4','#fbcfe8','#fce7f3','#ec4899'],gold:['#fbbf24','#fde68a','#f59e0b','#fff'],rainbow:['#f472b6','#818cf8','#22d3ee','#6ee7b7','#fde68a'],snow:['#fff','#bfdbfe','#e0f2fe','#dbeafe']};var cs=colors[type]||colors.pink;var cnt=type==='snow'?40:30;for(var i=0;i<cnt;i++){var x=Math.random()*gcv.width,y=Math.random()*gcv.height;var s=Math.random()*6+2;var c=cs[Math.floor(Math.random()*cs.length)];ctx.fillStyle=c;ctx.globalAlpha=Math.random()*.9+.1;if(type==='snow'){ctx.beginPath();ctx.arc(x,y,s*.5,0,Math.PI*2);ctx.fill();}else drawStar(ctx,x,y,s,5,c);}ctx.globalAlpha=1;SFX.sparkle();setSt('✨ Glitter '+type);}
 function clearGlitter(){var gcv=document.getElementById('fglc'+curEditSlot);if(gcv){var ctx=gcv.getContext('2d');ctx.clearRect(0,0,gcv.width,gcv.height);}SFX.whoosh();}
 function applyTheme(t){curTheme=t;var fp=document.getElementById('filmPreview');if(!fp)return;fp.style.background=t.bg;fp.style.boxShadow='0 0 28px '+t.ac+'44,0 0 56px '+t.ac+'22,inset 0 0 36px rgba(0,0,0,.6)';var h=document.getElementById('flH'),f=document.getElementById('flF');if(h)h.style.color=t.hc;if(f)f.style.color=t.fc;fp.querySelectorAll('.hole').forEach(function(h){h.style.background=t.ac+'28';});}
@@ -1182,7 +1203,7 @@ function renderStrip(ctx,TW,TH,L,slotW,slotH,GAP,HOLE_H,PAD_H,PAD_V,HDR_H,FTR_H,
   ctx.strokeStyle=curTheme.ac+'66';ctx.lineWidth=Math.round(slotW*.008);rrect(ctx,2,2,TW-4,TH-4,CORNER-2);ctx.stroke();
   // Header
   var hEl=document.getElementById('flH'),fEl=document.getElementById('flF');
-  ctx.font='900 '+Math.round(HDR_H*.5)+'px 'Zen Maru Gothic',sans-serif';ctx.fillStyle=curTheme.hc;ctx.textAlign='center';
+  ctx.font='900 '+Math.round(HDR_H*.5)+'px Zen Maru Gothic,sans-serif';ctx.fillStyle=curTheme.hc;ctx.textAlign='center';
   ctx.fillText(hEl?hEl.textContent:'✦ MEMORIES ✦',TW/2,PAD_V+Math.round(HDR_H*.7));
   // Slots
   for(var r=0;r<L.rows;r++){
@@ -1220,7 +1241,7 @@ function renderStrip(ctx,TW,TH,L,slotW,slotH,GAP,HOLE_H,PAD_H,PAD_V,HDR_H,FTR_H,
         var scX=slotW/sw0,scY=slotH/sh0;
         sl0.querySelectorAll('.txte').forEach(function(te){
           var fs=Math.round(+(te.style.fontSize||12)*scX);
-          ctx.font='bold '+fs+'px 'Zen Maru Gothic',sans-serif';ctx.fillStyle=te.style.color||'#fff';ctx.textAlign='center';
+          ctx.font='bold '+fs+'px Zen Maru Gothic,sans-serif';ctx.fillStyle=te.style.color||'#fff';ctx.textAlign='center';
           ctx.shadowColor=te.style.color||'#fff';ctx.shadowBlur=Math.round(fs*.25);
           var ty=cy2;if(te.classList.contains('p-top'))ty+=fs+4;else if(te.classList.contains('p-bottom'))ty+=slotH-8;else ty+=slotH/2+fs/3;
           ctx.fillText(te.textContent,cx2+slotW/2,ty);ctx.shadowBlur=0;
