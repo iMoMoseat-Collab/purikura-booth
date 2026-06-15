@@ -1040,7 +1040,50 @@ function renderEpanel(name){
 }
 function buildStkPanel(p){var g=document.createElement('div');g.className='stk-grid';STICKERS.forEach(function(s){var d=document.createElement('div');d.className='stk';d.textContent=s;d.onclick=function(){document.querySelectorAll('.stk').forEach(function(x){x.classList.remove('on');});if(selStk===s){selStk=null;return;}d.classList.add('on');selStk=s;selCh=null;document.querySelectorAll('.chb').forEach(function(x){x.classList.remove('on');});setSt('เลือก '+s+' — คลิกช่อง');};g.appendChild(d);});p.appendChild(g);}
 function buildChrPanel(p){var g=document.createElement('div');g.className='char-grid';CHARS.forEach(function(c,i){var d=document.createElement('div');d.className='chb';d.innerHTML=c.s+'<div class="ch-lbl">'+c.n+'</div>';d.querySelector('svg').style.cssText='width:30px;height:30px';(function(idx){d.onclick=function(){document.querySelectorAll('.chb').forEach(function(x){x.classList.remove('on');});if(selCh===idx){selCh=null;return;}d.classList.add('on');selCh=idx;selStk=null;document.querySelectorAll('.stk').forEach(function(x){x.classList.remove('on');});setSt('เลือก '+c.n+' — คลิกช่อง');};})(i);g.appendChild(d);});p.appendChild(g);}
-function buildTxtPanel(p){var html='<div class="txt-panel"><div class="glass-sec-title">Preset</div><div class="preset-row">';PRESETS.forEach(function(t){html+='<div class="ptxt" onclick="document.getElementById('txtIn').value=''+t+''">'+t+'</div>';});html+='</div><div class="glass-sec-title" style="margin-top:8px">พิมพ์เอง</div><input class="txtin" id="txtIn" placeholder="พิมพ์ข้อความ..." maxlength="30"><div class="glass-sec-title">สี</div><div class="clr-row" id="clrRow"></div><div style="display:flex;align-items:center;gap:8px;margin-top:6px"><span style="font-size:9px;font-weight:800;color:var(--muted);">ขนาด</span><input type="range" id="tsz" min="9" max="28" value="13"><span class="adj-val" id="tszV" style="color:var(--lv)">13</span></div><div class="glass-sec-title" style="margin-top:8px">ตำแหน่ง</div><div class="pos-row"><button class="posb" onclick="plTxt('top')">↑ บน</button><button class="posb" onclick="plTxt('mid')">⬛ กลาง</button><button class="posb" onclick="plTxt('bottom')">↓ ล่าง</button></div></div>';p.innerHTML=html;var cr=document.getElementById('clrRow');TXT_COLORS.forEach(function(c){var d=document.createElement('div');d.className='clrd'+(c==='#ffffff'?' on':'');d.style.cssText='background:'+c+';border-color:'+(c==='#ffffff'?'#fff':'transparent');d.onclick=function(){document.querySelectorAll('.clrd').forEach(function(x){x.classList.remove('on');x.style.borderColor='transparent';});d.classList.add('on');d.style.borderColor='#fff';txtColor=c;};cr.appendChild(d);});document.getElementById('tsz').addEventListener('input',function(){document.getElementById('tszV').textContent=this.value;});}
+function buildTxtPanel(p){
+  p.innerHTML='';
+  var wrap=document.createElement('div');wrap.className='txt-panel';
+  // Preset title
+  var t0=document.createElement('div');t0.className='glass-sec-title';t0.textContent='Preset';wrap.appendChild(t0);
+  // Preset row
+  var pr=document.createElement('div');pr.className='preset-row';
+  PRESETS.forEach(function(t){
+    var d=document.createElement('div');d.className='ptxt';d.textContent=t;
+    d.onclick=function(){var el=document.getElementById('txtIn');if(el)el.value=t;};
+    pr.appendChild(d);
+  });
+  wrap.appendChild(pr);
+  // Input label
+  var t1=document.createElement('div');t1.className='glass-sec-title';t1.style.marginTop='8px';t1.textContent='พิมพ์เอง';wrap.appendChild(t1);
+  var inp=document.createElement('input');inp.className='txtin';inp.id='txtIn';inp.placeholder='พิมพ์ข้อความ...';inp.maxLength=30;wrap.appendChild(inp);
+  // Color label
+  var t2=document.createElement('div');t2.className='glass-sec-title';t2.textContent='สี';wrap.appendChild(t2);
+  var cr=document.createElement('div');cr.className='clr-row';cr.id='clrRow';wrap.appendChild(cr);
+  // Size slider
+  var sRow=document.createElement('div');sRow.style.cssText='display:flex;align-items:center;gap:8px;margin-top:6px';
+  var sLbl=document.createElement('span');sLbl.style.cssText='font-size:9px;font-weight:800;color:var(--muted)';sLbl.textContent='ขนาด';
+  var sRange=document.createElement('input');sRange.type='range';sRange.id='tsz';sRange.min=9;sRange.max=28;sRange.value=13;
+  var sVal=document.createElement('span');sVal.className='adj-val';sVal.id='tszV';sVal.style.color='var(--lv)';sVal.textContent='13';
+  sRange.oninput=function(){sVal.textContent=this.value;};
+  sRow.appendChild(sLbl);sRow.appendChild(sRange);sRow.appendChild(sVal);wrap.appendChild(sRow);
+  // Position label
+  var t3=document.createElement('div');t3.className='glass-sec-title';t3.style.marginTop='8px';t3.textContent='ตำแหน่ง';wrap.appendChild(t3);
+  var posRow=document.createElement('div');posRow.className='pos-row';
+  [['top','↑ บน'],['mid','⬛ กลาง'],['bottom','↓ ล่าง']].forEach(function(pp){
+    var b=document.createElement('button');b.className='posb';b.textContent=pp[1];
+    (function(pos){b.onclick=function(){plTxt(pos);};})(pp[0]);
+    posRow.appendChild(b);
+  });
+  wrap.appendChild(posRow);
+  p.appendChild(wrap);
+  // Color swatches
+  TXT_COLORS.forEach(function(c){
+    var d=document.createElement('div');d.className='clrd'+(c==='#ffffff'?' on':'');
+    d.style.cssText='background:'+c+';border-color:'+(c==='#ffffff'?'#fff':'transparent');
+    d.onclick=function(){document.querySelectorAll('.clrd').forEach(function(x){x.classList.remove('on');x.style.borderColor='transparent';});d.classList.add('on');d.style.borderColor='#fff';txtColor=c;};
+    cr.appendChild(d);
+  });
+}
 function plTxt(pos){var txt=document.getElementById('txtIn').value.trim();if(!txt){setSt('⚠️ พิมพ์ก่อนนะ');return;}var sz=document.getElementById('tsz').value;var sl=document.getElementById('fsl'+curEditSlot);if(!sl)return;sl.querySelectorAll('.txte.p-'+pos).forEach(function(e){e.remove();});var el=document.createElement('div');el.className='txte p-'+pos;el.textContent=txt;el.style.color=txtColor;el.style.fontSize=sz+'px';el.style.textShadow='1px 1px 3px rgba(0,0,0,.9),0 0 5px '+txtColor+'88';if(pos==='top')el.style.top='0';else if(pos==='mid'){el.style.top='50%';el.style.transform='translateY(-50%)';}else el.style.bottom='0';sl.insertBefore(el,document.getElementById('ffcv'+curEditSlot));SFX.sparkle();setSt('"'+txt+'" ช่อง '+(curEditSlot+1));}
 function buildFxPanel(p){var html='<div class="glass-sec-title">Filter ใช้กับช่องที่เลือก</div><div class="fx-list" id="eFxList"></div>';p.innerHTML=html;var list=document.getElementById('eFxList');FX_NAMES.forEach(function(name){var item=document.createElement('div');item.className='fx-item';item.dataset.fx=name;var thumb=document.createElement('div');thumb.className='fx-thumb';var cv=document.createElement('canvas');cv.width=56;cv.height=38;var ctx=cv.getContext('2d');var g=ctx.createLinearGradient(0,0,56,38);g.addColorStop(0,'#2a1040');g.addColorStop(1,'#0a1020');ctx.fillStyle=g;ctx.fillRect(0,0,56,38);if(photos[curEditSlot]){ctx.drawImage(photos[curEditSlot],0,0,56,38);if(name!=='ปกติ'){try{var id=ctx.getImageData(0,0,56,38);PX_FILTER(name,id.data);ctx.putImageData(id,0,0);}catch(e){}}}else{ctx.fillStyle='rgba(255,255,255,.4)';ctx.font='bold 7px sans-serif';ctx.textAlign='center';ctx.fillText(name.slice(0,10),28,23);}thumb.appendChild(cv);var lbl=document.createElement('div');lbl.className='fx-name';lbl.textContent=name;item.appendChild(thumb);item.appendChild(lbl);(function(n){item.onclick=function(){document.querySelectorAll('#eFxList .fx-item').forEach(function(x){x.classList.remove('on');});item.classList.add('on');slotFx[curEditSlot]=n;redraw(curEditSlot);SFX.pop();setSt('Filter "'+n+'" ช่อง '+(curEditSlot+1));};})(name);list.appendChild(item);});}
 function buildBgPanel(p){var html='<label class="upload-bg">📁 Upload รูป BG<input type="file" accept="image/*" style="display:none" onchange="uploadBg(event)"></label><div class="glass-sec-title">BG สำเร็จรูป</div><div class="bg-grid" id="eBgGrid"></div><div style="display:flex;gap:5px;margin-top:8px"><button class="ab" onclick="clearSlotBg()">❌ ลบ BG</button></div>';p.innerHTML=html;var g=document.getElementById('eBgGrid');BG_PRESETS.forEach(function(b){var d=document.createElement('div');d.className='bgopt';d.style.background=b.bg;d.innerHTML='<span>'+b.n+'</span>';(function(bg,n){d.onclick=function(){document.querySelectorAll('.bgopt').forEach(function(x){x.classList.remove('on');});d.classList.add('on');slotBg[curEditSlot]=bg;slotBgImg[curEditSlot]=null;redraw(curEditSlot);SFX.sparkle();setSt('BG "'+n+'" ช่อง '+(curEditSlot+1));};})(b.bg,b.n);g.appendChild(d);});}
